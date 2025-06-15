@@ -7830,13 +7830,70 @@ Toggle:OnChanged(function(Value)
         end
     end
 end)
-Sever Hop = Window:AddTab({ Title = "Tab Sever Hop", Icon = "" })
+-- Khởi tạo tab
+local SeverHop = Window:AddTab({ Title = "Tab Sever Hop", Icon = "" })
+
+-- Đảm bảo Tabs.Main tồn tại
+if not Tabs or not Tabs.Main then
+    error("Tabs.Main không tồn tại. Vui lòng kiểm tra thư viện UI.")
+end
+
+-- Hàm kiểm tra boss
+function DetectingPart(v1)
+    return v1 and v1:FindFirstChild("HumanoidRootPart") and v1:FindFirstChild("Humanoid")
+end
+
+function CheckBossAttack()
+    for _, Boss in pairs(game.Workspace.Enemies:GetChildren()) do
+        if Boss.Name == "Cursed Captain" and DetectingPart(Boss) and Boss.Humanoid.Health > 0 then
+            return Boss
+        end
+    end
+    for _, Boss in pairs(game.ReplicatedStorage:GetChildren()) do
+        if Boss.Name == "Cursed Captain" then
+            return Boss
+        end
+    end
+    return nil -- Trả về nil nếu không tìm thấy boss
+end
+
+-- Hàm server hop cho Cursed Captain
+getgenv().sEX = function()
+    local success, result = pcall(function()
+        local url = 'https://xeterapi.vercel.app/api/Cursed'
+        local HttpService = game:GetService('HttpService')
+        local TeleportService = game:GetService('TeleportService')
+        local foundServers = HttpService:JSONDecode(HttpService:GetAsync(url))
+        
+        local chooses = nil
+        for _, v in pairs(foundServers) do
+            if v.jobId and v.jobId ~= game.JobId then
+                chooses = v
+                break -- Chọn máy chủ đầu tiên hợp lệ
+            end
+        end
+        
+        if chooses and chooses.jobId then
+            TeleportService:TeleportToPlaceInstance(4442272183, chooses.jobId, game.Players.LocalPlayer)
+        else
+            warn("Không tìm thấy máy chủ hợp lệ để chuyển.")
+        end
+    end)
+    
+    if not success then
+        warn("Lỗi khi thực hiện server hop: " .. tostring(result))
+    end
+end
+
+-- Thêm các nút vào tab
 Tabs.Main:AddButton({
     Title = "Hop Dough King V2",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
-       wait(5)
-        loadstring(game:HttpGet("https://pastefy.app/NHAdVTDi/raw"))()
+        pcall(function()
+            wait(5)
+            loadstring(game:HttpGet("https://pastefy.app/NHAdVTDi/raw"))()
+        end)
     end
 })
 
@@ -7844,59 +7901,47 @@ Tabs.Main:AddButton({
     Title = "Hop Rip Indra",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
-        wait(5)
-        loadstring(game:HttpGet("https://pastefy.app/bu21BbPi/raw"))()
+        pcall(function()
+            wait(5)
+            loadstring(game:HttpGet("https://pastefy.app/bu21BbPi/raw"))()
+        end)
     end
 })
 
 Tabs.Main:AddButton({
-    Title = "Hop Dark beard",
+    Title = "Hop Dark Beard",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
-        wait(5)
-        loadstring(game:HttpGet("https://pastefy.app/lHdiS2vw/raw"))()
+        pcall(function()
+            wait(5)
+            loadstring(game:HttpGet("https://pastefy.app/lHdiS2vw/raw"))()
+        end)
     end
 })
 
-getgenv().sEX = function()
-    local url = 'https://xeterapi.vercel.app/api/Cursed'
-    local chooses
-    local foundServers = game:GetService('HttpService'):JSONDecode(game:HttpGet(url))
-    for i,v in foundServers do 
-        if v.jobId ~= game.JobId then 
-            chooses = v
-        end
-    end
-    game:GetService("TeleportService"):TeleportToPlaceInstance(4442272183, chooses.jobId, game.Players.LocalPlayer)
-end
-function CheckBossAttack()
-    for _,Boss in pairs(game.Workspace.Enemies:GetChildren()) do
-        if Boss.Name == "Cursed Captain" and DetectingPart(Boss) and Boss.Humanoid.Health > 0 then
-            return Boss
-        end
-    end
-    for _,Boss in pairs(game.ReplicatedStorage:GetChildren()) do
-        if Boss.Name == "Cursed Captain" then
-            return Boss
-        end
-    end
-end
-function DetectingPart(v1)
-    return v1 and v1:FindFirstChild("HumanoidRootPart") and v1:FindFirstChild("Humanoid")
-end
 Tabs.Main:AddButton({
     Title = "Hop Cursed Captain",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
         spawn(function()
-            while task.wait(3) do
-              pcall(function()
-                if not CheckBossAttack() then
-                  return sEX()
+            local maxAttempts = 10 -- Giới hạn số lần thử
+            local attempts = 0
+            while attempts < maxAttempts do
+                local success, result = pcall(function()
+                    if not CheckBossAttack() then
+                        sEX()
+                    else
+                        return -- Thoát vòng lặp nếu tìm thấy boss
+                    end
+                end)
+                if not success then
+                    warn("Lỗi khi kiểm tra Cursed Captain: " .. tostring(result))
                 end
-              end)
+                attempts = attempts + 1
+                task.wait(3)
             end
-        end)          
+            warn("Đã thử " .. maxAttempts .. " lần nhưng không tìm thấy máy chủ phù hợp.")
+        end)
     end
 })
 
@@ -7904,27 +7949,32 @@ Tabs.Main:AddButton({
     Title = "Hop Soul Reaper",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
-wait(5)
- loadstring(game:HttpGet("https://pastefy.app/OHx9UTDp/raw"))()
+        pcall(function()
+            wait(5)
+            loadstring(game:HttpGet("https://pastefy.app/OHx9UTDp/raw"))()
+        end)
     end
 })
-
 
 Tabs.Main:AddButton({
     Title = "Hop Full Moon",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
-        wait(5)
-        loadstring(game:HttpGet("https://pastefy.app/fNcv3x43/raw"))()
+        pcall(function()
+            wait(5)
+            loadstring(game:HttpGet("https://pastefy.app/fNcv3x43/raw"))()
+        end)
     end
 })
 
 Tabs.Main:AddButton({
-    Title = "Hop Mirage island",
+    Title = "Hop Mirage Island",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
-        wait(5)
-         loadstring(game:HttpGet("https://pastefy.app/Ds8rU2qS/raw"))()
+        pcall(function()
+            wait(5)
+            loadstring(game:HttpGet("https://pastefy.app/Ds8rU2qS/raw"))()
+        end)
     end
 })
 
@@ -7932,8 +7982,10 @@ Tabs.Main:AddButton({
     Title = "Hop Oroshi Sword",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
-        wait(5)
-         loadstring(game:HttpGet("https://pastefy.app/b7eFTklO/raw"))()
+        pcall(function()
+            wait(5)
+            loadstring(game:HttpGet("https://pastefy.app/b7eFTklO/raw"))()
+        end)
     end
 })
 
@@ -7941,8 +7993,10 @@ Tabs.Main:AddButton({
     Title = "Hop Shizu Sword",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
-        wait(5)
-         loadstring(game:HttpGet("https://pastefy.app/BBL9UeVi/raw"))()
+        pcall(function()
+            wait(5)
+            loadstring(game:HttpGet("https://pastefy.app/BBL9UeVi/raw"))()
+        end)
     end
 })
 
@@ -7950,8 +8004,10 @@ Tabs.Main:AddButton({
     Title = "Hop Saishi Sword",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
-        wait(5)
-         loadstring(game:HttpGet("https://pastefy.app/In3U9CnW/raw"))()
+        pcall(function()
+            wait(5)
+            loadstring(game:HttpGet("https://pastefy.app/In3U9CnW/raw"))()
+        end)
     end
 })
 PVP = Window:AddTab({ Title = "Tab PVP", Icon = "" })
