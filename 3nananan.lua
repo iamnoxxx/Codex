@@ -7830,63 +7830,25 @@ Toggle:OnChanged(function(Value)
         end
     end
 end)
--- Khởi tạo tab
+
+-- Khởi tạo tab SeverHop
 local SeverHop = Window:AddTab({ Title = "Tab Sever Hop", Icon = "" })
 
--- Đảm bảo Tabs.Main tồn tại
-if not Tabs or not Tabs.Main then
-    error("Tabs.Main không tồn tại. Vui lòng kiểm tra thư viện UI.")
-end
-
--- Hàm kiểm tra boss
-function DetectingPart(v1)
-    return v1 and v1:FindFirstChild("HumanoidRootPart") and v1:FindFirstChild("Humanoid")
-end
-
-function CheckBossAttack()
-    for _, Boss in pairs(game.Workspace.Enemies:GetChildren()) do
-        if Boss.Name == "Cursed Captain" and DetectingPart(Boss) and Boss.Humanoid.Health > 0 then
-            return Boss
-        end
-    end
-    for _, Boss in pairs(game.ReplicatedStorage:GetChildren()) do
-        if Boss.Name == "Cursed Captain" then
-            return Boss
-        end
-    end
-    return nil -- Trả về nil nếu không tìm thấy boss
-end
-
--- Hàm server hop cho Cursed Captain
+-- Hàm hop server
 getgenv().sEX = function()
-    local success, result = pcall(function()
-        local url = 'https://xeterapi.vercel.app/api/Cursed'
-        local HttpService = game:GetService('HttpService')
-        local TeleportService = game:GetService('TeleportService')
-        local foundServers = HttpService:JSONDecode(HttpService:GetAsync(url))
-        
-        local chooses = nil
-        for _, v in pairs(foundServers) do
-            if v.jobId and v.jobId ~= game.JobId then
-                chooses = v
-                break -- Chọn máy chủ đầu tiên hợp lệ
-            end
+    local url = 'https://xeterapi.vercel.app/api/Cursed'
+    local chooses
+    local foundServers = game:GetService('HttpService'):JSONDecode(game:HttpGet(url))
+    for i, v in foundServers do 
+        if v.jobId ~= game.JobId then 
+            chooses = v
         end
-        
-        if chooses and chooses.jobId then
-            TeleportService:TeleportToPlaceInstance(4442272183, chooses.jobId, game.Players.LocalPlayer)
-        else
-            warn("Không tìm thấy máy chủ hợp lệ để chuyển.")
-        end
-    end)
-    
-    if not success then
-        warn("Lỗi khi thực hiện server hop: " .. tostring(result))
     end
+    game:GetService("TeleportService"):TeleportToPlaceInstance(4442272183, chooses.jobId, game.Players.LocalPlayer)
 end
 
--- Thêm các nút vào tab
-Tabs.Main:AddButton({
+-- Thêm các nút vào tab SeverHop
+SeverHop:AddButton({
     Title = "Hop Dough King V2",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
@@ -7897,7 +7859,7 @@ Tabs.Main:AddButton({
     end
 })
 
-Tabs.Main:AddButton({
+SeverHop:AddButton({
     Title = "Hop Rip Indra",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
@@ -7908,7 +7870,7 @@ Tabs.Main:AddButton({
     end
 })
 
-Tabs.Main:AddButton({
+SeverHop:AddButton({
     Title = "Hop Dark Beard",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
@@ -7919,7 +7881,7 @@ Tabs.Main:AddButton({
     end
 })
 
-Tabs.Main:AddButton({
+SeverHop:AddButton({
     Title = "Hop Cursed Captain",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
@@ -7928,14 +7890,10 @@ Tabs.Main:AddButton({
             local attempts = 0
             while attempts < maxAttempts do
                 local success, result = pcall(function()
-                    if not CheckBossAttack() then
-                        sEX()
-                    else
-                        return -- Thoát vòng lặp nếu tìm thấy boss
-                    end
+                    sEX() -- Gọi hàm hop server mà không kiểm tra boss
                 end)
                 if not success then
-                    warn("Lỗi khi kiểm tra Cursed Captain: " .. tostring(result))
+                    warn("Lỗi khi hop server: " .. tostring(result))
                 end
                 attempts = attempts + 1
                 task.wait(3)
@@ -7945,7 +7903,7 @@ Tabs.Main:AddButton({
     end
 })
 
-Tabs.Main:AddButton({
+SeverHop:AddButton({
     Title = "Hop Soul Reaper",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
@@ -7956,7 +7914,7 @@ Tabs.Main:AddButton({
     end
 })
 
-Tabs.Main:AddButton({
+SeverHop:AddButton({
     Title = "Hop Full Moon",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
@@ -7967,7 +7925,7 @@ Tabs.Main:AddButton({
     end
 })
 
-Tabs.Main:AddButton({
+SeverHop:AddButton({
     Title = "Hop Mirage Island",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
@@ -7978,7 +7936,7 @@ Tabs.Main:AddButton({
     end
 })
 
-Tabs.Main:AddButton({
+SeverHop:AddButton({
     Title = "Hop Oroshi Sword",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
@@ -7989,7 +7947,7 @@ Tabs.Main:AddButton({
     end
 })
 
-Tabs.Main:AddButton({
+SeverHop:AddButton({
     Title = "Hop Shizu Sword",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
@@ -8000,7 +7958,7 @@ Tabs.Main:AddButton({
     end
 })
 
-Tabs.Main:AddButton({
+SeverHop:AddButton({
     Title = "Hop Saishi Sword",
     Description = "Đợi 5s bấm 1 lần",
     Callback = function()
